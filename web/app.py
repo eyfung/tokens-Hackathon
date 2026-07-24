@@ -597,9 +597,10 @@ with tab_memory:
                 "ID": d.id,
                 "Disease": d.disease_area,
                 "N/Arm": d.n_per_arm,
-                "Effect": d.treatment_effect,
+                "Δ": d.treatment_effect,
                 "Power": f"{d.power_achieved:.1%}",
                 "Viable": "✅" if d.is_viable else "❌",
+                "Source": d.source_nct if d.source_nct else "—",
             }
             for d in all_designs
         ]

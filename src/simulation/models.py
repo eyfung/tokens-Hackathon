@@ -65,4 +65,5 @@ class DesignFingerprint(BaseModel):
     power_achieved: float
     is_viable: bool
     risk_flags: list[str] = Field(default_factory=list)
+    source_nct: str = Field("", description="ClinicalTrials.gov NCT ID or literature reference")
     embedding: list[float] = Field(default_factory=list, description="Vector embedding for similarity search")
