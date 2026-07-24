@@ -130,6 +130,13 @@ class TrialArchitect:
         await self.memory.store(fingerprint)
         self._designs_evaluated += 1
 
+        # Generate comparison insight if we have history
+        comparison_insight = ""
+        if similar and self._designs_evaluated > 0:
+            comparison_insight = await self.pioneer.compare_designs(
+                similar, result.power, request.n_per_arm,
+            )
+
         # Build response
         return TrialDesignResult(
             request=request,
@@ -139,7 +146,7 @@ class TrialArchitect:
             confidence_interval=(result.ci_lower, result.ci_upper),
             risk_flags=risk_flags,
             similar_designs_found=len(similar) if similar else 0,
-            agent_advice=advice,
+            agent_advice=advice + ("\n\n" + comparison_insight if comparison_insight else ""),
         )
 
     def _assess_risks(self, result: SimulationResult, request: TrialDesignRequest) -> list[str]:
