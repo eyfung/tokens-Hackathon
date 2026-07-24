@@ -1,6 +1,4 @@
-// Clarity — Trial Design Agent (Static UI placeholder)
-// The Streamlit app (web/app.py) is the primary UI.
-// This JS file exists for the static HTML template.
+// Clarity — Trial Design Agent (Ventriloc editorial style)
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('trial-form');
@@ -12,20 +10,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const btn = document.getElementById('run-btn');
             btn.disabled = true;
-            btn.textContent = '⏳ Simulating...';
+            btn.textContent = 'Simulating...';
 
             if (resultsPlaceholder) {
                 resultsPlaceholder.innerHTML = `
                     <div class="loading">
-                        <p>🧪 Running 10,000 virtual trials...</p>
-                        <p style="color: var(--text-muted); font-size: 0.9rem;">
+                        <p class="text-steel">Running 10,000 virtual trials...</p>
+                        <p class="text-slate caption" style="margin-top:8px;">
                             Querying Actian for similar designs...
                         </p>
                     </div>
                 `;
             }
 
-            // Collect form data
             const data = {
                 disease: document.getElementById('disease').value,
                 endpoint: document.getElementById('endpoint').value,
@@ -45,14 +42,16 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 if (resultsPlaceholder) {
                     resultsPlaceholder.innerHTML = `
-                        <p style="color: var(--error);">Error: ${err.message}</p>
-                        <p style="color: var(--text-muted);">Run the Streamlit app for full functionality.</p>
+                        <div class="result-section">
+                            <p style="color: var(--color-ember-orange);">Error: ${err.message}</p>
+                            <p class="text-slate caption mt-8">Run the Streamlit app for full functionality.</p>
+                        </div>
                     `;
                 }
             }
 
             btn.disabled = false;
-            btn.textContent = '🚀 Run Simulation';
+            btn.textContent = 'Run Simulation';
         });
     }
 });
@@ -62,19 +61,33 @@ function displayResults(result) {
     if (!placeholder) return;
 
     const viable = result.power >= 0.80;
+    const dotClass = viable ? 'viable' : 'fail';
+    const statusText = viable ? 'Design viable' : 'Underpowered';
+
     placeholder.innerHTML = `
-        <div class="metric-row">
-            <div class="metric">
-                <span class="metric-value">${(result.power * 100).toFixed(0)}%</span>
-                <span class="metric-label">Statistical Power</span>
-            </div>
-            <div class="metric">
-                <span class="metric-value">${viable ? '✅' : '❌'}</span>
-                <span class="metric-label">Design Viable</span>
+        <div class="result-section">
+            <div class="metric-row">
+                <div class="metric">
+                    <div class="metric-value">${(result.power * 100).toFixed(0)}%</div>
+                    <div class="metric-label">Statistical Power</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">
+                        <span class="status-dot ${dotClass}"></span>
+                    </div>
+                    <div class="metric-label">${statusText}</div>
+                </div>
             </div>
         </div>
-        <p style="margin-top: 1rem; color: var(--accent);">
-            🤖 Agent advised: ${result.advice || 'Design is viable.'}
-        </p>
+        <hr />
+        <div class="result-section">
+            <p class="text-steel">
+                ${result.advice || 'Design meets the target power threshold.'}
+            </p>
+        </div>
+        <div class="result-section">
+            <span class="tag">n=${result.sample_size || '—'}</span>
+            <span class="tag tag-brass">CI: ${(result.ci_lower !== undefined ? (result.ci_lower * 100).toFixed(1) : '—')}–${(result.ci_upper !== undefined ? (result.ci_upper * 100).toFixed(1) : '—')}%</span>
+        </div>
     `;
 }

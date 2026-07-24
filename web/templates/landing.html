@@ -4,257 +4,184 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Clarity — Self-Evolving Clinical Trial Design Agent</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0e1117;
-            color: #e0e0e0;
-            line-height: 1.6;
-        }
-        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
-
-        /* Hero */
-        .hero {
-            padding: 80px 0 60px;
-            text-align: center;
-            background: linear-gradient(180deg, #0e1117 0%, #1a1d27 100%);
-        }
-        .hero h1 {
-            font-size: 3.5em;
-            font-weight: 800;
-            background: linear-gradient(135deg, #00cc96, #00a67e);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 16px;
-        }
-        .hero p {
-            font-size: 1.2em;
-            color: #8892a4;
-            max-width: 700px;
-            margin: 0 auto 32px;
-        }
-        .hero .badge {
-            display: inline-block;
-            background: #1a1d27;
-            border: 1px solid #2a2d37;
-            border-radius: 20px;
-            padding: 8px 20px;
-            margin: 4px;
-            font-size: 0.9em;
-        }
-        .hero .cta {
-            display: inline-block;
-            background: linear-gradient(135deg, #00cc96, #009977);
-            color: #0e1117;
-            padding: 14px 40px;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 1.1em;
-            text-decoration: none;
-            margin-top: 20px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .hero .cta:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 204, 150, 0.3);
-        }
-
-        /* Sections */
-        section { padding: 60px 0; }
-        section h2 {
-            font-size: 2em;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-        }
-        .card {
-            background: #1a1d27;
-            border: 1px solid #2a2d37;
-            border-radius: 12px;
-            padding: 28px;
-            transition: border-color 0.2s;
-        }
-        .card:hover { border-color: #00cc96; }
-        .card h3 { color: #00cc96; margin-bottom: 12px; font-size: 1.2em; }
-        .card p { color: #8892a4; font-size: 0.95em; }
-
-        /* Partner logos */
-        .partners {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin: 32px 0;
-        }
-        .partner {
-            background: #1a1d27;
-            border: 1px solid #2a2d37;
-            border-radius: 10px;
-            padding: 12px 24px;
-            font-weight: 600;
-            font-size: 0.9em;
-        }
-        .partner.deepmind { color: #4285F4; }
-        .partner.pioneer { color: #FF6B6B; }
-        .partner.actian { color: #00CC96; }
-        .partner.band { color: #FFA15A; }
-        .partner.guild { color: #AB47BC; }
-        .partner.replay { color: #42A5F5; }
-
-        /* Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin: 40px 0;
-        }
-        .stat {
-            text-align: center;
-            padding: 24px;
-            background: #1a1d27;
-            border-radius: 12px;
-            border: 1px solid #2a2d37;
-        }
-        .stat .num {
-            font-size: 2.5em;
-            font-weight: 800;
-            color: #00cc96;
-        }
-        .stat .label { color: #8892a4; font-size: 0.9em; margin-top: 4px; }
-
-        .footer {
-            text-align: center;
-            padding: 40px 0;
-            color: #545a6a;
-            font-size: 0.85em;
-            border-top: 1px solid #1a1d27;
-        }
-
-        @media (max-width: 768px) {
-            .grid-3 { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .hero h1 { font-size: 2.2em; }
-        }
-    </style>
+    <link rel="stylesheet" href="static/css/style.css" />
 </head>
 <body>
+
+<!-- ── Navigation ──────────────────────────────────────────── -->
+<div class="nav-wrapper">
+    <div class="nav-pill">
+        <span class="nav-brand">Clarity</span>
+        <a href="#">Trials</a>
+        <a href="#">Memory</a>
+        <a href="#">Docs</a>
+        <a href="#" class="nav-lang">EN</a>
+    </div>
+</div>
+
+<!-- ── Hero ────────────────────────────────────────────────── -->
+<div class="container">
     <div class="hero">
-        <div class="container">
-            <h1>🧪 Clarity</h1>
-            <p>
-                A self-evolving AI agent that designs better clinical trials.
-                Simulate thousands of virtual patients, find optimal sample sizes,
-                and watch your agent learn from every design.
+        <div class="hero-text">
+            <h1 class="display">Trial design.<br />Evolving.</h1>
+            <p class="subheading">
+                A self-evolving agent that compresses clinical trial feasibility
+                analysis from weeks to minutes. Simulate thousands of virtual
+                patients, find optimal sample sizes, and watch the agent learn
+                from every design.
             </p>
-            <div>
-                <span class="badge">🧠 DeepMind</span>
-                <span class="badge">👾 Pioneer</span>
-                <span class="badge">🌐 Actian</span>
-                <span class="badge">🤖 Band</span>
-                <span class="badge">🔧 Guild AI</span>
-                <span class="badge">🔺 Replay</span>
+            <div class="btn-group">
+                <a href="dashboard" class="btn btn-primary">Launch Simulator</a>
+                <a href="#" class="btn btn-ghost">How it works</a>
             </div>
-            <a href="#get-started" class="cta">🚀 Launch Simulator</a>
+        </div>
+        <div class="hero-cards">
+            <div class="card-data">
+                <div class="card-title">Statistical Power</div>
+                <div class="stat-value">87%</div>
+                <div class="stat-label">Across 10K virtual trials</div>
+            </div>
+            <div class="card-data">
+                <div class="card-title">Designs in Memory</div>
+                <div class="stat-value">10</div>
+                <div class="stat-label">Pre-loaded disease areas</div>
+            </div>
+            <div class="card-data">
+                <div class="card-title">Feasibility Speed</div>
+                <div class="stat-value">80%</div>
+                <div class="stat-label">Faster than manual methods</div>
+            </div>
         </div>
     </div>
+</div>
 
+<!-- ── Partner Strip ───────────────────────────────────────── -->
+<div class="partner-strip">
+    <div class="partner-caption">Built with</div>
+    <div class="partner-logos">
+        <span class="partner-logo">DeepMind</span>
+        <span class="partner-logo">Pioneer</span>
+        <span class="partner-logo">Actian</span>
+        <span class="partner-logo">Band</span>
+        <span class="partner-logo">Guild AI</span>
+        <span class="partner-logo">Replay</span>
+    </div>
+</div>
+
+<!-- ── Problem Section ─────────────────────────────────────── -->
+<div class="section-alt">
     <div class="container">
-        <section>
-            <h2>🔥 The Problem</h2>
-            <div class="grid-3">
-                <div class="card">
-                    <h3>⏱️ Months Per Design</h3>
-                    <p>A single clinical trial design requires weeks of manual simulation work by scarce biostatisticians. Getting it wrong means starting over.</p>
-                </div>
-                <div class="card">
-                    <h3>💰 $50-100M at Risk</h3>
-                    <p>A failed Phase III trial can cost $100M+. Poor trial design — wrong sample size, flawed eligibility criteria — is a leading cause of failure.</p>
-                </div>
-                <div class="card">
-                    <h3>🏥 Excluded Teams</h3>
-                    <p>Small biotechs and academic researchers can't afford dedicated biostatisticians. Good trial design is a luxury, not a given.</p>
-                </div>
+        <h2 class="heading-lg mb-36">The problem</h2>
+        <div class="grid-3">
+            <div class="card-asymmetric">
+                <h3 class="subheading text-graphite mb-16">Months per design</h3>
+                <p class="text-steel">
+                    A single clinical trial design requires weeks of manual
+                    simulation work by scarce biostatisticians. Getting it wrong
+                    means starting over.
+                </p>
             </div>
-        </section>
-
-        <section>
-            <h2>⚡ The Agent</h2>
-            <div class="grid-3">
-                <div class="card">
-                    <h3>🔍 Searches Memory</h3>
-                    <p>Before running a single simulation, the agent queries <strong>Actian</strong> for similar past designs — diseases, endpoints, sample sizes, outcomes.</p>
-                </div>
-                <div class="card">
-                    <h3>🧪 Simulates Patients</h3>
-                    <p>Using <strong>Pioneer</strong> and <strong>DeepMind</strong>, it generates thousands of virtual patient populations and evaluates statistical power.</p>
-                </div>
-                <div class="card">
-                    <h3>👤 Escalates to You</h3>
-                    <p>If the design is underpowered, it opens a <strong>Band</strong> room, explains the risks, and suggests concrete fixes — then learns from your response.</p>
-                </div>
+            <div class="card">
+                <h3 class="subheading text-graphite mb-16">Dollars at risk</h3>
+                <p class="text-steel">
+                    A failed Phase III trial can cost $100M+. Poor trial design
+                    is a leading cause of failure.
+                </p>
             </div>
-        </section>
-
-        <section>
-            <h2>📊 By the Numbers</h2>
-            <div class="stats-grid">
-                <div class="stat">
-                    <div class="num">10</div>
-                    <div class="label">Pre-loaded Disease Areas</div>
-                </div>
-                <div class="stat">
-                    <div class="num">10K</div>
-                    <div class="label">Virtual Trials per Design</div>
-                </div>
-                <div class="stat">
-                    <div class="num">80%</div>
-                    <div class="label">Faster Feasibility</div>
-                </div>
-                <div class="stat">
-                    <div class="num">∞</div>
-                    <div class="label">Self-Evolving</div>
-                </div>
+            <div class="card">
+                <h3 class="subheading text-graphite mb-16">Excluded teams</h3>
+                <p class="text-steel">
+                    Small biotechs and academic researchers cannot afford
+                    dedicated biostatisticians. Good trial design is a luxury.
+                </p>
             </div>
-        </section>
-
-        <section>
-            <h2>🏗️ Built With</h2>
-            <div class="partners">
-                <div class="partner deepmind">🧠 DeepMind — Advanced Reasoning</div>
-                <div class="partner pioneer">👾 Pioneer — Routine Inference</div>
-                <div class="partner actian">🌐 Actian — Vector Memory</div>
-                <div class="partner band">🤖 Band — Human Escalation</div>
-                <div class="partner guild">🔧 Guild AI — Agent Lifecycle</div>
-                <div class="partner replay">🔺 Replay — QA Capture</div>
-            </div>
-        </section>
-
-        <section id="get-started">
-            <h2>🚀 Get Started</h2>
-            <p style="text-align:center; color:#8892a4; margin-bottom:24px;">
-                Clone the repo, install dependencies, and launch the agent:
-            </p>
-            <div style="background:#1a1d27; border:1px solid #2a2d37; border-radius:10px; padding:20px; font-family:monospace; font-size:0.9em; color:#00cc96;">
-                git clone https://github.com/eyfung/tokens-Hackathon.git<br>
-                cd tokens-Hackathon<br>
-                pip install -r requirements.txt<br>
-                streamlit run web/app.py
-            </div>
-            <p style="text-align:center; margin-top:20px; color:#8892a4;">
-                No API keys required — runs fully offline with mock data.<br>
-                Add your Pioneer / DeepMind / Band keys to <code>config/partners.yaml</code> for live inference.
-            </p>
-        </section>
+        </div>
     </div>
+</div>
 
-    <div class="footer">
-        <p>🧪 Clarity — tokens& Self-Evolving Agents Hackathon 2026</p>
-        <p>Built with DeepMind, Guild AI, Pioneer, Actian, Band &amp; Replay</p>
+<!-- ── Agent Section ────────────────────────────────────────── -->
+<div class="section">
+    <div class="container">
+        <h2 class="heading-lg mb-36">The agent</h2>
+        <div class="grid-3">
+            <div class="card-asymmetric">
+                <h3 class="subheading text-graphite mb-16">Searches memory</h3>
+                <p class="text-steel">
+                    Before running a single simulation, the agent queries
+                    Actian for similar past designs — diseases, endpoints,
+                    sample sizes, outcomes.
+                </p>
+            </div>
+            <div class="card">
+                <h3 class="subheading text-graphite mb-16">Simulates patients</h3>
+                <p class="text-steel">
+                    Using Pioneer and DeepMind, it generates thousands of
+                    virtual patient populations and evaluates statistical power.
+                </p>
+            </div>
+            <div class="card">
+                <h3 class="subheading text-graphite mb-16">Escalates to you</h3>
+                <p class="text-steel">
+                    If the design is underpowered, it opens a Band room,
+                    explains the risks, and suggests concrete fixes.
+                </p>
+            </div>
+        </div>
     </div>
+</div>
+
+<!-- ── Stats Section ────────────────────────────────────────── -->
+<div class="section-alt">
+    <div class="container">
+        <h2 class="heading-lg mb-36">By the numbers</h2>
+        <div class="grid-4">
+            <div class="card-data" style="text-align:center;">
+                <div class="stat-value">10</div>
+                <div class="stat-label">Pre-loaded disease areas</div>
+            </div>
+            <div class="card-data" style="text-align:center;">
+                <div class="stat-value">10K</div>
+                <div class="stat-label">Virtual trials per design</div>
+            </div>
+            <div class="card-data" style="text-align:center;">
+                <div class="stat-value">80%</div>
+                <div class="stat-label">Faster feasibility</div>
+            </div>
+            <div class="card-data" style="text-align:center;">
+                <div class="stat-value">∞</div>
+                <div class="stat-label">Self-evolving</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Get Started ──────────────────────────────────────────── -->
+<div class="section">
+    <div class="container" style="text-align:center;">
+        <h2 class="heading-lg mb-20">Get started</h2>
+        <p class="subheading mb-36" style="max-width:600px;margin:0 auto 36px;">
+            Clone the repo, install dependencies, and launch the agent.
+            No API keys required — runs fully offline with mock data.
+        </p>
+        <pre style="text-align:left;max-width:560px;margin:0 auto;">git clone https://github.com/eyfung/tokens-Hackathon.git
+cd tokens-Hackathon
+pip install -r requirements.txt
+streamlit run web/app.py</pre>
+        <p class="caption mt-20">
+            Add your Pioneer / DeepMind / Band keys to config/partners.yaml for live inference.
+        </p>
+    </div>
+</div>
+
+<!-- ── Footer ──────────────────────────────────────────────── -->
+<div class="footer">
+    <div class="footer-links">
+        <a href="#">GitHub</a>
+        <a href="#">Documentation</a>
+        <a href="#">Cookie Preferences</a>
+    </div>
+    <p>Clarity — tokens Self-Evolving Agents Hackathon 2026</p>
+</div>
+
 </body>
 </html>
