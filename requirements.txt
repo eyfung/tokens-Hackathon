@@ -7,14 +7,14 @@ pydantic>=2.0
 streamlit>=1.28
 plotly>=5.17
 
-# Agent SDK
-guild-ai-agents-sdk>=0.1
+# Agent SDK (Guild AI — install separately if available)
+# guild-ai-agents-sdk>=0.1
 
 # Inference
 openai>=1.0  # Pioneer-compatible / DeepMind Gemini
 
-# Vector DB
-actian-vectordb>=0.1
+# Vector DB (Actian VectorAI — requires Docker/on-prem)
+# actian-vectordb>=0.1  # Install via: docker run -d -p 5432:5432 actian/vectorai
 
 # Communication
 band-sdk>=0.1

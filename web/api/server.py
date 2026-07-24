@@ -6,6 +6,10 @@ Wraps the simulation engine from src/simulation/engine.py.
 import sys
 from pathlib import Path
 
+# Load environment variables from .env if present
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
+
 # Ensure src/ is importable
 REPO_ROOT = str(Path(__file__).resolve().parent.parent.parent)
 SRC = str(Path(REPO_ROOT, 'src'))

@@ -26,13 +26,12 @@ class BandRoom:
     def __init__(
         self,
         api_key: Optional[str] = None,
-        base_url: str = "https://api.band.ai/v1",
         room_name: str = "clarity-trials",
         use_mock: Optional[bool] = None,
     ):
         self._api_key = api_key or os.getenv("BAND_API_KEY", "demo")
-        self._base_url = base_url
         self._room_name = room_name
+        self._client = None
         self.total_rooms_opened: int = 0
         self._conversation_log: list[dict] = []
         if use_mock is None:
@@ -43,6 +42,13 @@ class BandRoom:
     @property
     def is_mock(self) -> bool:
         return self._use_mock
+
+    async def _get_client(self):
+        """Lazy-init the Band async REST client."""
+        if self._client is None and not self._use_mock:
+            from band.client.rest import AsyncRestClient
+            self._client = AsyncRestClient(api_key=self._api_key)
+        return self._client
 
     async def escalate(
         self,
@@ -94,44 +100,137 @@ class BandRoom:
     ) -> str:
         """Use Band AI SDK to create a real room and await response."""
         try:
-            import httpx
-            async with httpx.AsyncClient(timeout=60) as client:
-                # Create room
-                room_resp = await client.post(
-                    f"{self._base_url}/rooms",
-                    headers={
-                        "Authorization": f"Bearer {self._api_key}",
-                        "Content-Type": "application/json",
-                    },
-                    json={
-                        "name": room_ref,
-                        "title": title,
-                        "participants": [human_id, "clarity-agent"],
-                    },
-                )
-                room_resp.raise_for_status()
-                room_data = room_resp.json()
-                room_id = room_data["id"]
+            from band.client.rest import (
+                ChatRoomRequest,
+                ChatMessageRequest,
+                ChatMessageRequestMentionsItem,
+                ParticipantRequest,
+                DEFAULT_REQUEST_OPTIONS,
+            )
 
-                # Post the escalation message
-                await client.post(
-                    f"{self._base_url}/rooms/{room_id}/messages",
-                    headers={"Authorization": f"Bearer {self._api_key}"},
-                    json={
-                        "role": "agent",
-                        "content": message,
-                        "suggested_action": suggested_action,
-                    },
-                )
-
-                # In production: poll or webhook for human response
-                # In hackathon: return acknowledgment
+            client = await self._get_client()
+            if client is None:
                 return (
-                    f"[Band room {room_id}] Escalation sent to {human_id}. "
-                    f"Suggested action: {suggested_action}. Waiting for human review."
+                    f"[Band client not initialized] "
+                    f"{self._mock_human_response(title, suggested_action)}"
                 )
+
+            # ---- Step 1: Create a chat room ----
+            room_resp = await client.agent_api_chats.create_agent_chat(
+                chat=ChatRoomRequest(
+                    task_id=room_ref,
+                    title=f"[Clarity] {title}",
+                ),
+                request_options=DEFAULT_REQUEST_OPTIONS,
+            )
+
+            # Handle both dict-like and object responses
+            if hasattr(room_resp, 'id'):
+                room_id = room_resp.id
+            elif hasattr(room_resp, 'get'):
+                room_id = room_resp.get('id', room_resp.get('chat_id', ''))
+            elif isinstance(room_resp, str):
+                room_id = room_resp
+            else:
+                room_id = str(room_resp)
+
+            # ---- Step 2: Add the human as a participant ----
+            try:
+                await client.agent_api_participants.add_agent_chat_participant(
+                    chat_id=room_id,
+                    participant=ParticipantRequest(
+                        participant_id=human_id,
+                        role="member",
+                    ),
+                    request_options=DEFAULT_REQUEST_OPTIONS,
+                )
+            except Exception as part_err:
+                # Participant add is best-effort; room creation is the critical part
+                pass
+
+            # ---- Step 3: Post the escalation message ----
+            await client.agent_api_messages.create_agent_chat_message(
+                chat_id=room_id,
+                message=ChatMessageRequest(
+                    content=(
+                        f"{message}\n\n"
+                        f"**Suggested action:** {suggested_action}\n"
+                        f"**Room ref:** {room_ref}\n"
+                        f"---\n"
+                        f"This escalation was sent by the Clarity trial agent."
+                    ),
+                    mentions=[
+                        ChatMessageRequestMentionsItem(
+                            id=human_id,
+                            name="Principal Investigator",
+                        ),
+                    ],
+                ),
+                request_options=DEFAULT_REQUEST_OPTIONS,
+            )
+
+            # ---- Step 4: Poll for human response (15s timeout) ----
+            import asyncio
+            human_reply = None
+            poll_attempts = 0
+            max_attempts = 15  # 15 * 1s = 15s total
+
+            while poll_attempts < max_attempts:
+                await asyncio.sleep(1)
+                poll_attempts += 1
+                try:
+                    next_msg = await client.agent_api_messages.get_agent_next_message(
+                        chat_id=room_id,
+                        request_options=DEFAULT_REQUEST_OPTIONS,
+                    )
+                    if next_msg:
+                        if hasattr(next_msg, 'content'):
+                            human_reply = next_msg.content
+                        elif hasattr(next_msg, 'get'):
+                            human_reply = next_msg.get('content', '')
+                        else:
+                            human_reply = str(next_msg)
+
+                        if human_reply:
+                            # Mark as processed so we don't re-read it
+                            try:
+                                await client.agent_api_messages.mark_agent_message_processed(
+                                    chat_id=room_id,
+                                    message_id=(
+                                        next_msg.id
+                                        if hasattr(next_msg, 'id')
+                                        else next_msg.get('id', '')
+                                    ),
+                                    request_options=DEFAULT_REQUEST_OPTIONS,
+                                )
+                            except Exception:
+                                pass
+                            break
+                except Exception:
+                    await asyncio.sleep(2)
+
+            if human_reply:
+                return (
+                    f"[Band room {room_id}] Human {human_id} responded: "
+                    f"\"{human_reply}\""
+                )
+
+            return (
+                f"[Band room {room_id}] Escalation sent to {human_id}. "
+                f"Suggested action: {suggested_action}. "
+                f"No response received within polling window — proceeding autonomously."
+            )
+
+        except ImportError as ie:
+            return (
+                f"[Band SDK not installed] Install with: pip install band-sdk. "
+                f"Using fallback: {self._mock_human_response(title, suggested_action)}"
+            )
         except Exception as e:
-            return f"[Band escalation attempted — fallback] {self._mock_human_response(title, suggested_action)}"
+            return (
+                f"[Band escalation failed: {e}] "
+                f"{self._mock_human_response(title, suggested_action)}"
+            )
 
     def _mock_human_response(self, title: str, suggested_action: str) -> str:
         """Simulate a human response for demo."""

@@ -26,7 +26,7 @@ class PioneerClient:
         self,
         api_key: Optional[str] = None,
         base_url: str = "https://api.pioneer.ai/v1",
-        model: str = "pioneer-1",
+        model: str = "pioneer/auto",
         use_mock: Optional[bool] = None,
     ):
         self._api_key = api_key or os.getenv("PIONEER_API_KEY", "demo")
@@ -68,6 +68,16 @@ class PioneerClient:
                         "max_tokens": 512,
                     },
                 )
+                if resp.status_code == 403:
+                    detail = resp.json().get("detail", {})
+                    msg = detail.get("message", "Access denied")
+                    billing_url = detail.get("resolution_url", "https://agent.pioneer.ai/billing")
+                    return (
+                        f"[Pioneer API requires billing activation — "
+                        f"visit {billing_url} to enable. "
+                        f"Using offline analysis meanwhile.] "
+                        f"{self._mock_response(system, user)}"
+                    )
                 resp.raise_for_status()
                 data = resp.json()
                 return data["choices"][0]["message"]["content"]

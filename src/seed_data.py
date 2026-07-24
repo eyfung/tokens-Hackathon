@@ -259,19 +259,42 @@ SEED_DESIGNS = [
 ]
 
 
-def seed_memory(store) -> int:
+async def seed_memory(store) -> int:
     """Populate an ActianStore with seed designs. Returns count of designs loaded."""
-    import asyncio
     count = 0
     for design in SEED_DESIGNS:
-        try:
-            asyncio.run(store.store(design))
-            count += 1
-        except RuntimeError:
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(store.store(design))
-            count += 1
+        await store.store(design)
+        count += 1
     return count
+
+
+def seed_memory_sync(store) -> int:
+    """Sync wrapper for seed_memory (for Streamlit, etc.)."""
+    import asyncio
+    try:
+        loop = asyncio.get_running_loop()
+        # Already in an event loop — but we can't block with run_until_complete
+        # from inside a running loop. Use create_task.
+        import threading
+        result = []
+        async def _run():
+            r = await seed_memory(store)
+            result.append(r)
+        
+        # Thread-safe: run in a new event loop on a thread
+        def _in_thread():
+            new_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(new_loop)
+            r = new_loop.run_until_complete(seed_memory(store))
+            result.append(r)
+            new_loop.close()
+        
+        t = threading.Thread(target=_in_thread, daemon=True)
+        t.start()
+        t.join()
+        return result[0] if result else 0
+    except RuntimeError:
+        return asyncio.run(seed_memory(store))
 
 
 def get_seed_prompt() -> str:

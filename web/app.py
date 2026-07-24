@@ -8,6 +8,10 @@ import os
 import sys
 from pathlib import Path
 
+# Load environment variables from .env if present
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).parent.parent / ".env")
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import streamlit as st
@@ -22,7 +26,7 @@ from src.memory.actian_store import ActianStore
 from src.communication.band import BandRoom
 from src.inference.pioneer import PioneerClient
 from src.agent.trial_architect import TrialArchitect
-from src.seed_data import seed_memory, get_seed_prompt
+from src.seed_data import seed_memory_sync, get_seed_prompt
 from src.validation_report import run_validation, validation_summary, CLINICAL_TRIALS, LITERATURE_BENCHMARKS
 
 
@@ -308,7 +312,7 @@ if "agent" not in st.session_state:
     pioneer = PioneerClient()
     agent = TrialArchitect(memory=memory, band=band, pioneer=pioneer)
 
-    seeded = seed_memory(memory)
+    seeded = seed_memory_sync(memory)
     st.session_state.seeded_count = seeded
 
     st.session_state.validation_rows = None

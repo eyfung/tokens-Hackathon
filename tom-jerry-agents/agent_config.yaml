@@ -1,0 +1,8 @@
+# Agent credentials from the Band.ai platform.
+tom_agent:
+  agent_id: "8c3646ee-e031-4cad-86b1-81cf68b9a7cf"
+  api_key: "band_a_1784929446_gv20Wu5jss-sc7vLiHMEB0_xsfiHO-9W"
+
+jerry_agent:
+  agent_id: "06a483b2-c51c-409a-b15f-d26bd89468fc"
+  api_key: "band_a_1784929447_F7HT8eX0YZJUD4-7E8pbAwUWbOdc-2mS"

@@ -48,18 +48,79 @@ class DeepMindClient:
         if self._use_mock:
             return self._mock_response(prompt)
 
+        # Try native async genai SDK first
+        result = await self._try_async_genai(prompt)
+        if result is not None:
+            return result
+
+        # Fallback: try OpenAI-compatible endpoint (Gemini supports it)
+        result = await self._try_openai_compat(prompt)
+        if result is not None:
+            return result
+
+        return self._mock_response(prompt) + " [Gemini API unavailable]"
+
+    async def _try_async_genai(self, prompt: str) -> str | None:
+        """Try native google-genai async SDK."""
         try:
             from google import genai
+
             client = genai.Client(api_key=self._api_key)
-            response = client.models.generate_content(
-                model=self._model,
-                contents=prompt,
+
+            # Try async generation
+            if hasattr(client.aio.models, 'generate_content'):
+                response = await client.aio.models.generate_content(
+                    model=self._model,
+                    contents=prompt,
+                )
+                return response.text
+
+            # Fallback to sync wrapped in executor
+            import asyncio
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(
+                None,
+                lambda: client.models.generate_content(
+                    model=self._model,
+                    contents=prompt,
+                ),
             )
             return response.text
         except ImportError:
-            return self._mock_response(prompt) + " [google-genai SDK not installed]"
+            return None
         except Exception as e:
-            return self._mock_response(prompt) + f" [Gemini API error: {e}]"
+            error_str = str(e).lower()
+            if "api key" in error_str or "not found" in error_str or "permission" in error_str:
+                return None  # Auth/key issue — let fallback handle it
+            return self._mock_response(prompt) + f" [Gemini error: {e}]"
+
+    async def _try_openai_compat(self, prompt: str) -> str | None:
+        """Fallback via Gemini's OpenAI-compatible endpoint."""
+        try:
+            import httpx
+
+            async with httpx.AsyncClient(timeout=30) as client:
+                resp = await client.post(
+                    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self._api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "model": self._model,
+                        "messages": [
+                            {"role": "user", "content": prompt},
+                        ],
+                        "temperature": 0.3,
+                        "max_tokens": 1024,
+                    },
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    return data["choices"][0]["message"]["content"]
+                return None
+        except Exception:
+            return None
 
     def _mock_response(self, prompt: str) -> str:
         """Structured mock response for offline demo."""
