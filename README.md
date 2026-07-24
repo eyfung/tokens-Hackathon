@@ -55,4 +55,4 @@ streamlit run web/app.py
 
 ## Team
 
-[Your team name] — [Hackathon 2026]
+[Clarity] — [tokens& Hackathon 2026]
