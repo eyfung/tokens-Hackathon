@@ -1,0 +1,37 @@
+# ============================================================
+# Clarity — Partner API Configuration
+# ============================================================
+# Copy this file to config/partners.yaml and fill in your keys.
+#
+# ⚠️  Never commit your keys.
+#    This file is in .gitignore for a reason.
+# ============================================================
+
+actian:
+  connection_string: ""  # e.g., "actian://user:pass@host:port/db"
+  enable_vector_store: true
+
+band:
+  api_key: ""
+  default_room: "clarity-trials"
+  enable_human_escalation: true
+
+pioneer:
+  api_key: ""
+  base_url: "https://api.pioneer.ai/v1"
+  model: "default"
+  enable_inference: true
+
+deepmind:
+  api_key: ""
+  model: "gemini-2.0-pro"
+  enable_advanced_reasoning: false   # only for edge cases
+
+guild:
+  agent_name: "clarity-trial-architect"
+  publish_on_evolve: true
+  version_strategy: "semver"
+
+replay:
+  api_key: ""
+  capture_demo: true

@@ -1,0 +1,53 @@
+# Clarity Trial Architect — Guild AI Agent Definition
+# ===================================================
+# This file defines the agent for Guild AI's control plane.
+# Guild manages: deployment, versioning, governance, and lifecycle.
+#
+# Deploy with: guild agent save --file guild/agent.yaml --publish
+
+name: clarity-trial-architect
+description: "Self-evolving clinical trial design agent"
+
+version: "0.1.0"
+model: model-agnostic  # Guild routes to Pioneer / DeepMind as needed
+
+# Tools the agent can use
+tools:
+  - pioneer-inference
+  - deepmind-reasoning
+  - actian-vector-store
+  - band-escalation
+  - replay-qa
+
+# Integrations with business systems
+integrations:
+  - slack: [channels: ["#clarity-alerts"]]
+  - email: [to: "study-team@example.com"]
+
+# Environment
+environment:
+  CLARITY_CONFIG: "/etc/clarity/partners.yaml"
+
+# Governance — access scoping
+credentials:
+  - pioneer: [inference:write]
+  - deepmind: [reasoning:read]
+  - actian: [vectors:read, vectors:write]
+  - band: [rooms:create, messages:send]
+
+# Versioning strategy
+version_strategy: semver
+auto_publish: true
+
+# Monitoring
+monitoring:
+  metrics:
+    - name: designs_evaluated
+      type: counter
+      description: "Total trial designs evaluated"
+    - name: patterns_stored
+      type: gauge
+      description: "Number of patterns in Actian memory"
+    - name: power_improvement
+      type: gauge
+      description: "Average power improvement across designs"
